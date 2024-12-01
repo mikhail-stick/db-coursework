@@ -1,0 +1,51 @@
+.slide-in {
+    transform: translateX(50%);
+    animation: slideIn 0.1s forwards;
+}
+
+@keyframes slideIn {
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.slide-out {
+    transform: translateX(0);
+    animation: slideOut 1s forwards;
+}
+
+@keyframes slideOut {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.content {
+    width: 100%;
+    font-size: 1.125rem;
+    overflow-x: auto;
+}
+
+.item-preview {
+    cursor: pointer;
+    padding: 0.7rem;
+    margin: 0.75rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    transition: 0.2s ease;
+}
+
+.item-preview svg {
+    font-size: 1.5rem;
+    color: var(--menu-icons-color);
+}
+
+.item-preview p {
+    padding-left: 1rem;
+    font-size: 1.15rem;
+}
+
+.item-preview:hover {
+    background-color: var(--theme-switcher-hower-color);
+}

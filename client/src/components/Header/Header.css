@@ -1,0 +1,246 @@
+path {
+    pointer-events: none;
+}
+
+.header-container-outer {
+    display: flex;
+    height: 3.4rem;
+    width: 100%;
+    border-bottom: 1px solid var(--header-shadow-color);
+    align-items: center;
+    background-color: var(--site-color);
+}
+
+.header-container-outer.higher {
+    top: 0.4rem;
+    display: block;
+    height: 6.75rem;
+    align-items: initial;
+}
+
+.header-container-outer.higher .header-menu-item {
+    margin-top: 9.5px;
+}
+
+.header-container-outer.higher .header-buttons {
+    margin-top: 9.5px;
+}
+
+.header-container {
+    height: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding-bottom: 0.25rem;
+}
+
+.header-container > * {
+    margin: 0.8rem;
+}
+
+.searchbar {
+    width: 100%;
+    height: 2.6rem;
+    background-color: var(--content-color);
+    border-radius: 1.375rem;
+    display: flex;
+    align-items: center;
+}
+
+.searchbar:focus-within .search-icon {
+    color: var(--send-button-color);
+}
+
+.searchbar:focus-within {
+    outline: 2px solid var(--send-button-color);
+}
+
+*:not(.searchbar):focus-within {
+    outline: none;
+}
+
+.searchbar:hover {
+    cursor: text;
+}
+
+.search-icon {
+    font-size: 1.375rem !important;
+    margin-left: 0.75rem;
+    color: rgba(131, 131, 131, 0.75);
+    margin-right: 0.75rem;
+}
+
+.search-input {
+    border: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 1.375rem;
+    background-color: var(--content-color);
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+.search-input::placeholder {
+    color: rgba(131, 131, 131, 0.75);
+}
+
+.header-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-button {
+    color: #aaaaaa;
+    font-size: 0.9rem;
+    border-radius: 50%;
+    transform-origin: center;
+}
+
+.header-button:hover {
+    cursor: pointer;
+}
+
+
+.rotate-in {
+    animation: rotate-in 0.15s linear forwards;
+}
+
+.rotate-out {
+    animation: rotate-out 0.15s linear forwards;
+}
+
+.main-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    animation: menu-appear 0.25s ease-in-out forwards;
+}
+
+.main-menu.disappear {
+    animation: menu-disappear 0.3s ease-in-out forwards;
+    pointer-events: none;
+}
+
+.header-menu-item {
+    color: var(--text-color);
+    font-size: 1.3rem;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-menu-item-icons {
+    display: flex;
+    justify-content: space-between;
+    width: 15%;
+}
+
+.header-menu-item-icons svg {
+    color: var(--menu-icons-color);
+}
+
+.header-menu-item-icons svg:hover {
+    cursor: pointer;
+}
+
+@keyframes menu-disappear {
+    from {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-25%, -22%) scale(0.5);
+    }
+}
+
+
+@keyframes menu-appear {
+    from {
+        opacity: 0;
+        transform: translate(-25%, -25%) scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+.header-contacts {
+    display: flex;
+}
+
+.new-header-contact-preview {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--header-shadow-color);
+    color: var(--text-color);
+    border-radius: 1rem;
+    padding-right: 1.5rem;
+    margin: 0.5rem 0 0.5rem 0.5rem;
+    transition: 0.2s ease;
+}
+
+.new-header-contact-preview:hover {
+    cursor: pointer;
+    color: #e53935;
+    background-color: rgb(259, 57, 53, 0.5);
+}
+
+.new-header-contact-name {
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    border-radius: 50%;
+}
+
+.new-header-contact-image {
+    width: 2rem;
+    height: auto;
+    border-radius: 50%;
+}
+
+@keyframes rotate-in {
+    0% {
+        transform: rotateZ(180deg);
+    }
+    25% {
+        transform: rotateZ(225deg);
+    }
+    50% {
+        transform: rotateZ(270deg);
+    }
+    75% {
+        transform: rotateZ(315deg);
+    }
+    100% {
+        transform: rotateZ(360deg);
+    }
+}
+
+@keyframes rotate-out {
+    0% {
+        transform: rotateZ(360deg);
+    }
+    25% {
+        transform: rotateZ(315deg);
+    }
+    50% {
+        transform: rotateZ(270deg);
+    }
+    75% {
+        transform: rotateZ(225deg);
+    }
+    100% {
+        transform: rotateZ(180deg);
+    }
+}

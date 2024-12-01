@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.left-container {
+    background-color: var(--site-color);
+    color: var(--text-color);
+    width: 100%;
+    height: 95vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    white-space: nowrap;
+    scrollbar-color: var(--site-color) var(--site-color);
+}
+
+.light-theme {
+    --site-color: rgb(255, 255, 255);
+    --content-color: rgb(244, 244, 245);
+    --text-color: rgb(40, 40, 40);
+    --chat-color: rgb(153, 186, 146);
+    --contact-window-color: rgba(17, 17, 17, 0.5);
+    --message-color: rgb(220,248,197);
+    --send-button-color: rgb(51, 144, 236);
+    --add-contact-button-color: rgb(39, 122, 208);
+    --header-shadow-color: rgb(194, 192, 192);
+    --message-time-color: rgb(153, 186, 146);
+    --modal-menu-color: rgba(255, 255, 255, 0.95);
+    --menu-item-color: rgb(234, 234, 234);
+    --theme-switcher-hower-color: rgb(234, 234, 234);
+    --menu-icons-color: rgb(70, 70, 70);
+    --profile-border-color: rgb(236, 236, 236);
+}
+
+.dark-theme {
+    --site-color: rgb(33, 33, 33);
+    --content-color: rgb(44, 44, 44);
+    --text-color: rgb(255, 255, 255);
+    --chat-color: rgb(26, 26, 26);
+    --contact-window-color: rgba(17, 17, 17, 0.5);
+    --message-color: rgb(135, 116, 225);
+    --send-button-color: rgb(135, 116, 225);
+    --add-contact-button-color: rgb(113, 97, 192);
+    --header-shadow-color: rgb(52, 52, 52);
+    --message-time-color: rgb(222, 222, 222);
+    --modal-menu-color: rgba(33, 33, 33, 0.5);
+    --menu-item-color: rgb(45, 45, 45);
+    --theme-switcher-hower-color: rgb(49, 49, 49);
+    --menu-icons-color: rgb(208, 208, 208);
+    --profile-border-color: rgb(28, 28, 28);
+}
+
+body {
+    background-color: var(--site-color);
+}

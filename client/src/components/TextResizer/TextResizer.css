@@ -1,0 +1,19 @@
+.text-resizer {
+    position: relative;
+    width: 100%;
+    display: block;
+    border-bottom: 0.625rem solid var(--profile-border-color);
+}
+
+.text-resizer input {
+    width: 85%;
+}
+
+.range-input-wrapper {
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    margin-left: 1rem;
+    margin-bottom: 1rem;
+}

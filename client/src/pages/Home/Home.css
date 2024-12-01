@@ -1,0 +1,18 @@
+body {
+    overflow: hidden;
+}
+
+.home-page {
+    display: flex;
+}
+
+.chat-window {
+    flex: 1;
+}
+
+.left-menu {
+    width: 25%;
+    background-color: var(--site-color);
+    position: relative;
+    border-right: 1px solid var(--header-shadow-color);
+}

@@ -1,0 +1,52 @@
+.setting-header {
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0.5rem 0 0 1rem;
+    color: #afafaf;
+}
+
+.theme-switcher {
+    width: 100%;
+    display: flex;
+    align-content: space-between;
+    border-bottom: 0.625rem solid var(--profile-border-color);
+}
+
+.theme-switcher-element {
+    text-align: center;
+    color: var(--text-color);
+    border-radius: 10%;
+    margin: 1rem;
+    width: 50%;
+    transition: 0.2s ease;
+    border: 1px solid var(--message-time-color);
+}
+
+.theme-switcher-checkbox {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--text-color);
+    margin-top: 1rem;
+}
+
+.theme-switcher-element:hover {
+    background-color: var(--theme-switcher-hower-color);
+}
+
+.theme-switcher-element.active {
+    color: var(--send-button-color);
+    border: 1px solid var(--send-button-color);
+}
+
+.theme-switcher-element.active input {
+    background-color: var(--send-button-color);
+    border: 1px solid var(--send-button-color);
+}
+
+.theme-switcher-checkbox:hover {
+    cursor: pointer;
+}

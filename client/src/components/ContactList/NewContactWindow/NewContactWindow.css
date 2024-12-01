@@ -1,0 +1,81 @@
+.blocking-window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--contact-window-color);
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.window-content {
+    background-color: var(--content-color);
+    width: 25rem;
+    color: var(--text-color);
+    border-radius: 0.75rem;
+    padding: 1.25rem 1.25rem 0.375rem 1.25rem;
+}
+
+.window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.35rem;
+    font-weight: 450;
+}
+
+#phone_input {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid #838383;
+    background-color: var(--content-color);
+    width: 100%;
+    position: relative;
+}
+
+#phone_input:focus {
+    border: 1px solid var(--send-button-color);
+}
+#phone_input:focus::placeholder {
+    color: var(--send-button-color);
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    color: var(--send-button-color);
+}
+
+.submit-button {
+    margin-right: 0.5rem;
+}
+
+.form-buttons button {
+    font-size: 1.125rem;
+    font-weight: 410;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.75rem;
+}
+
+.form-buttons button:disabled {
+    color: var(--add-contact-button-color);
+}
+
+.form-buttons button:disabled:hover {
+    background-color: var(--content-color)
+}
+
+.form-buttons button:hover {
+    background-color: rgba(135, 116, 225, 0.1);
+}
+
+.error {
+    margin-top: 0.5rem;
+    color: #e53935;
+}

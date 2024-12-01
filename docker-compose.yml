@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+
+  server:
+    container_name: server_app
+    build: ./server
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - type: bind
+        source: ./server/src
+        target: /src
+        read_only: false
+
+  client:
+    container_name: client_app
+    build: ./client
+    ports:
+      - ${CLIENT_PORT}:${CLIENT_PORT}
+    volumes:
+      - type: bind
+        source: ./client/src
+        target: /src
+        read_only: false
