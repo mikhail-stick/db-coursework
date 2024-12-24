@@ -1,25 +1,38 @@
-version: '3.8'
+version: "3.8"
 
 services:
+    server:
+        container_name: server_app
+        build: ./server
+        ports:
+            - 3001:3001
+        volumes:
+            - type: bind
+              source: ./server/src
+              target: /src
+              read_only: false
 
-  server:
-    container_name: server_app
-    build: ./server
-    ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
-    volumes:
-      - type: bind
-        source: ./server/src
-        target: /src
-        read_only: false
-
-  client:
-    container_name: client_app
-    build: ./client
-    ports:
-      - ${CLIENT_PORT}:${CLIENT_PORT}
-    volumes:
-      - type: bind
-        source: ./client/src
-        target: /src
-        read_only: false
+    client:
+        container_name: client_app
+        build: ./client
+        ports:
+            - 3000:3000
+        volumes:
+            - type: bind
+              source: ./client/src
+              target: /src
+              read_only: false
+    db:
+        image: postgres:16.1
+        container_name: db
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: mintgram
+        ports:
+            - 5432:5432
+volumes:
+    postgres_data:

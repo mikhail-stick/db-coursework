@@ -1,6 +1,6 @@
 import {Chat} from './Chat';
 import {ObjectId} from "mongodb";
-import {user_chats} from "../Database";
+import {user_chats} from "../server/src/classes/Database";
 
 
 export interface GroupChatType {

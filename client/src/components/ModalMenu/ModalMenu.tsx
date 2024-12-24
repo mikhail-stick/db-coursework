@@ -31,7 +31,7 @@ export function ModalMenu(): JSX.Element {
                         ><InfoOutlined className="menu-item-icon" /> About
                         </li>
                     </ul>
-                    <p className="description">SocialNetwork by @mikhail-stick.</p>
+                    <p className="description">Mintgram.</p>
                 </div>
             </div>
         </>

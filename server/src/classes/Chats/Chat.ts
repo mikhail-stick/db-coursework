@@ -1,79 +1,89 @@
-import {Document, ObjectId, WithId} from "mongodb";
-
-import {Message} from "../Message";
-import {chat_messages, DB, user_chats} from "../Database";
+import { DB } from "../Database";
+import { Message } from "../Message";
 
 
-export abstract class Chat{
+export abstract class Chat {
 
-    protected id: ObjectId;
-    protected db: DB;
-    protected static chatsDb: DB = new DB('chats');
+    protected id: number;
+    protected static table = "chats";
 
+    static async findOneChatById(chat_id: string) {
+        const chatInfo = await DB.findOne("user_contacts", { chat_id: chat_id });
 
-    protected constructor() {this.db = Chat.chatsDb;}
+        const user_id = await chatInfo.user_id.toString();
+        const contact_id = chatInfo.contact_id.toString();
 
-    static async findOneChatById(chat_id: string | ObjectId): Promise<WithId<Document>> {
-        return await Chat.chatsDb.findOne({_id: new ObjectId(chat_id.toString())});
-    }
-
-    static async deleteChat(chat_id: string | ObjectId): Promise<void> {
-        chat_id = new ObjectId(chat_id.toString());
-
-        await Chat.chatsDb.deleteOne({_id: chat_id});
-        await chat_messages.deleteMany({chat_id: chat_id});
-        await user_chats.deleteMany({chat_id: chat_id});
-    }
-
-    static async getAllChatMessagesObjects(chat_id: string | ObjectId): Promise<Document> {
-
-        return await chat_messages.aggregate([
-            {
-                $lookup: {
-                    from: "messages",
-                    localField: "message_id",
-                    foreignField: "_id",
-                    as: "message"
-                }
+        return {
+            _id: chat_id.toString(), // Преобразование id в строку
+            type: "private",         // Тип чата
+            interlocutor: {
+                [user_id]: contact_id,
+                [contact_id]: user_id,
             },
-            {$match: {chat_id: new ObjectId(chat_id.toString())}},
-            {$unwind: "$message"},
-            {
-                $group: {
-                    _id: "$chat_id",
-                    messages: {
-                        $push: "$message"
-                    }
-                }
-            },
-            {$project: {_id: 0, messages: 1}}
-        ]);
+            last_message: {}            // Заглушка для последнего сообщения
+        }
+
+        // return await DB.findOne(this.table, { id: chat_id });
     }
 
-    static async getAllChatUsersIds(chat_id: string | ObjectId): Promise<any[]> {
-        const users: WithId<Document>[] = await user_chats.findAll({'chat_id': new ObjectId(chat_id.toString())});
-        return users.map((obj: WithId<Document>) => obj.user_id);
-    }
+    // static async deleteChat(chat_id: string | ObjectId): Promise<void> {
+    //     chat_id = new ObjectId(chat_id.toString());
 
-    static async setLastMessage(chat_id: string | ObjectId, message_id: string | ObjectId): Promise<void> {
-        await Chat.chatsDb.updateOneField(
-            {_id: new ObjectId(chat_id.toString())},
-            'last_message',
-            new ObjectId(message_id.toString()
-            )
+    //     await Chat.chatsDb.deleteOne({_id: chat_id});
+    //     await chat_messages.deleteMany({chat_id: chat_id});
+    //     await user_chats.deleteMany({chat_id: chat_id});
+    // }
+
+    static async getAllChatMessagesObjects(chat_id: string) {
+        const result = (await DB.sql(`SELECT *
+                                    FROM messages
+                                    WHERE chat_id = ${chat_id}
+                                    ORDER BY id ASC;
+                                    `)).rows;
+
+        const chats = await Promise.all(result.map(async (chat) => {
+            return {
+                ...chat,
+                attachments: "",
+                _id: chat.id
+            }
+        })
         );
+
+        return chats
     }
 
-    static async getLastMessage(chat_id: string | ObjectId,): Promise<WithId<Document>> {
-        return await chat_messages.findLastOne({chat_id: new ObjectId(chat_id.toString())});
+    // static async getAllChatUsersIds(chat_id: string | ObjectId): Promise<any[]> {
+    //     const users: WithId<Document>[] = await user_chats.findAll({'chat_id': new ObjectId(chat_id.toString())});
+    //     return users.map((obj: WithId<Document>) => obj.user_id);
+    // }
+
+    static async setLastMessage(chat_id: string, message_id: string): Promise<void> {
+        DB.sql(`UPDATE chats
+            SET last_message_id = ${message_id}
+            WHERE id = ${chat_id};
+            `)
     }
 
-    static async sendMessage(chat_id: string | ObjectId, sender_id: string | ObjectId, text: string, attachments: string = ''): Promise<void> {
+    static async getLastMessage(chat_id: string,) {
+        const message = (await DB.sql(`SELECT *
+            FROM messages
+            WHERE chat_id = ${chat_id}
+            ORDER BY time DESC
+            LIMIT 1;`)).rows[0];
+        const last_message = message ? {
+            ...message,
+            _id: message.id,
+            attachments: ""
+        } : {};
+        return last_message;
+    }
 
+    static async sendMessage(chat_id: string, sender_id: string, text: string, attachments: string = '') {
         await Message.addMessage(
             text,
-            new ObjectId(sender_id.toString()),
-            new ObjectId(chat_id.toString()),
+            sender_id.toString(),
+            chat_id.toString(),
             attachments
         );
     }

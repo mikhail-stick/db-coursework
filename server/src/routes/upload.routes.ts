@@ -1,18 +1,16 @@
-import express, {Router} from 'express';
+import express, { Router } from 'express';
 import multer from 'multer';
 import * as fs from 'fs';
-import {Profile} from "../classes/Profile";
-import {User} from "../classes/User";
-import {Chat} from "../classes/Chats/Chat";
+import { Profile } from "../classes/Profile";
 
 const router: Router = express.Router();
-const upload_profile: multer.Multer = multer({ dest: '../public/images/profile' });
-const upload_group: multer.Multer = multer({ dest: '../public/images/chat' });
+const upload_profile: multer.Multer = multer({ dest: 'public/images/profile' });
+const upload_group: multer.Multer = multer({ dest: 'public/images/chat' });
 
 router.post('/profile-image', upload_profile.single('image'), async (req: any, res) => {
 
     try {
-        const {path, mimetype} = req.file!;
+        const { path, mimetype } = req.file!;
         const extension: string = mimetype.split("/")[1];
         const newFileName: string = `${path}.${extension}`;
         fs.renameSync(path, newFileName);
@@ -20,7 +18,7 @@ router.post('/profile-image', upload_profile.single('image'), async (req: any, r
         const previousImage: string | undefined = (await Profile.findProfileById(req.body.profile_id))?.image
 
         if (previousImage) {
-            fs.unlink(`../../public/images/profile/${previousImage}`, (err) => {
+            fs.unlink(`public/images/profile/${previousImage}`, (err) => {
                 if (err) {
                     console.error(err);
                     return;
@@ -29,27 +27,27 @@ router.post('/profile-image', upload_profile.single('image'), async (req: any, r
             });
         }
 
-        res.status(200).json({image_path: newFileName.split("/").slice(-1)[0]});
+        res.status(200).json({ image_path: newFileName.split("/").slice(-1)[0] });
 
     }
     catch (err: any) {
-        res.status(500).json({error: err.toString()});
+        res.status(500).json({ error: err.toString() });
     }
 });
 
 router.post('/group-image', upload_group.single('image'), async (req: any, res) => {
 
     try {
-        const {path, mimetype} = req.file!;
+        const { path, mimetype } = req.file!;
         const extension: string = mimetype.split("/")[1];
         const newFileName: string = `${path}.${extension}`;
         fs.renameSync(path, newFileName);
 
-        res.status(200).json({image_path: newFileName.split("/").slice(-1)[0]});
+        res.status(200).json({ image_path: newFileName.split("/").slice(-1)[0] });
 
     }
     catch (err: any) {
-        res.status(500).json({error: err.toString()});
+        res.status(500).json({ error: err.toString() });
     }
 });
 

@@ -1,4 +1,4 @@
-import {ChatRepository, Chat, ChatDTO} from "./ChatRepository";
+import { ChatRepository, Chat, ChatDTO } from "./ChatRepository";
 import axios from "axios";
 
 export interface User {
@@ -64,7 +64,7 @@ export class UserRepository {
     }
     async setUserInfo(user: UserDTO): Promise<void> {
 
-        try{
+        try {
             await axios.put(`${this.RequestsUrl}/user/${user._id}`,
                 {
                     _id: user._id,
@@ -92,25 +92,35 @@ export class UserRepository {
     async getAllUserChats(user_id: string): Promise<(ChatDTO | undefined)[] | []> {
         try {
             const response = await axios.get(`${this.RequestsUrl}/user/chats/${user_id}`);
+
+            console.log("response: ", response.data);
+
             const user_chats: Chat[] = response.data as Chat[];
+
             const chatRepo: ChatRepository = new ChatRepository(this.RequestsUrl.slice(0, -4));
 
+            console.log("chatRepo: ", user_chats);
+
+
             return await Promise.all(user_chats.map(async (chat: Chat) => {
+                console.log("chat chatRepo", chat);
+
                 return await chatRepo.getChatInfo(user_id, chat._id);
             }));
 
         } catch (err: any) {
+
             console.log(err.toString());
             return [];
         }
     }
 
     async getAllUserContacts(user_id: string): Promise<ContactDTO[] | undefined> {
-        try{
+        try {
             const response: any = await axios.get(`${this.RequestsUrl}/user/contacts/${user_id}`);
             const user_contacts = response.data;
 
-            return await Promise.all(user_contacts.map(async (contact: {user_id: string, contact_id: string, chat_id: string}) => {
+            return await Promise.all(user_contacts.map(async (contact: { user_id: string, contact_id: string, chat_id: string }) => {
                 const contact_info: UserDTO | undefined = await this.getUserInfo(contact.contact_id);
 
                 if (contact_info) {
@@ -161,7 +171,7 @@ export class UserRepository {
         };
     }
 
-    static async getUserInfo(url:string, user_id: string): Promise<UserDTO | undefined> {
+    static async getUserInfo(url: string, user_id: string): Promise<UserDTO | undefined> {
         try {
             const user_response = await axios.get(`${url}/user/${user_id}`);
             const user: User = user_response.data as User;

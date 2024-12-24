@@ -1,16 +1,18 @@
-import {Express, Router} from 'express';
-import {Server} from "socket.io";
-import {ObjectId} from "mongodb";
-import {User} from "./classes/User";
-import {Chat} from "./classes/Chats/Chat";
-import {Message} from "./classes/Message";
-import {GroupChat, GroupChatType} from "./classes/Chats/GroupChat";
+import { Express, Router } from 'express';
+import { Server } from "socket.io";
+import { User } from "./classes/User";
+import { Chat } from "./classes/Chats/Chat";
+import { Message } from "./classes/Message";
+import { GroupChat, GroupChatType } from "./classes/Chats/GroupChat";
 
 const express = require('express');
 const config = require('config');
 const http = require('http');
 const cors = require('cors');
 const bodyParser = require("body-parser");
+
+const dotenv = require('dotenv');
+dotenv.config();
 
 const authRoute: Router = require("./routes/auth.routes");
 const chatRoute: Router = require("./routes/chat.routes");
@@ -19,7 +21,7 @@ const messageRoute: Router = require("./routes/message.routes");
 const uploadRoute: Router = require("./routes/upload.routes")
 
 const app: Express = express()
-const port: string = config.get('Dev.programConfig.port');
+const port: string = process.env.PORT;
 const server: any = http.createServer(app);
 
 app.use(cors());
@@ -46,26 +48,28 @@ io.on("connection", (socket): void => {
         socket.join(data);
     })
 
-    socket.on("new_group", (data): void => {
-        GroupChat.createGroupChat(data.users, data.photo, data.name).then((res: GroupChatType): void => {
-            socket.emit('new_group_chat');
-        }).catch(err => console.log(err.toString()))
-    })
+    // socket.on("new_group", (data): void => {
+    //     GroupChat.createGroupChat(data.users, data.photo, data.name).then((res: GroupChatType): void => {
+    //         socket.emit('new_group_chat');
+    //     }).catch(err => console.log(err.toString()))
+    // })
 
     socket.on("send_message", (data): void => {
+        console.log("send_message");
 
         Chat.sendMessage(data.chat_id, data.sender_id, data.text).then((): void => {
-                io.in(data.chat_id).emit("messages_changed")
+            io.in(data.chat_id).emit("messages_changed")
         }).catch(err => console.log(err.toString()))
 
     })
 
     socket.on("edit_message", (data): void => {
+        console.log("edit_message");
 
         Message.setNewMessageText(data.message_id, data.text).then((): void => {
             io.in(data.chat_id).emit("messages_changed")
         })
-        .catch(err => console.log(err.toString()))
+            .catch(err => console.log(err.toString()))
 
     })
 
@@ -79,20 +83,24 @@ io.on("connection", (socket): void => {
 
     socket.on("add_contact", (data): void => {
 
-        User.findOneUser({phone_number: data.new_contact_number}).then(contact => {
+        User.findOneUser({ phone_number: data.new_contact_number }).then(contact => {
+            console.log(contact);
+
 
             if (contact) {
-                User.addNewContact(new ObjectId(data.user_id), contact._id).then((chat_id): void => {
-                        if (socket.id === data.socket_id) {
-                            socket.emit('new_contact', {error: false, chat_id: chat_id})
-                        }
+                User.addNewContact(data.user_id, contact.id).then((chat_id): void => {
+                    if (socket.id === data.socket_id) {
+                        socket.emit('new_contact', { error: false, chat_id: chat_id })
                     }
-                )
+                }
+                ).catch(err => {
+                    socket.emit('new_contact', { error: 'Contact already exist!' })
+                })
             }
             else {
 
                 if (socket.id === data.socket_id) {
-                    socket.emit('new_contact', {error: 'There are no users with such number!'})
+                    socket.emit('new_contact', { error: 'There are no users with such number!' })
                 }
             }
         }).catch(err => console.log(err))

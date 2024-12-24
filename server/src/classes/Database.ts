@@ -1,94 +1,118 @@
-import {
-    MongoClient,
-    Collection,
-    Db,
-    ObjectId,
-    MongoClientOptions,
-    WithId,
-    Document,
-    InsertOneResult
-} from 'mongodb';
 
-const config = require('config');
+import { Pool, PoolConfig } from 'pg';
+import { UserType } from './User';
 
-// TODO: Change db to PostgreSQL without using ORM
+const dotenv = require('dotenv');
+dotenv.config();
 
-const DB_URI = config.get('Dev.DB.uri');
-const DB_NAME = config.get('Dev.DB.name');
-
-const OPTIONS: MongoClientOptions = {
-    ssl: true,
+const DB_CONFIG: PoolConfig = {
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: +process.env.DB_PORT,
 };
 
-const CLIENT: MongoClient = new MongoClient(DB_URI, OPTIONS);
+const pool = new Pool(DB_CONFIG);
+let client;
+(async () => {
+    client = await pool.connect();
 
+    client.release();
+})()
 
 export class DB {
+    private static client = client;
+    private static pool = pool;
 
-    public collection!: Collection;
-    private client!: MongoClient;
-    private db !: Db;
-
-
-    constructor(private collectionName: string) {
-        this.client = CLIENT;
-        this.db = this.client.db(DB_NAME)
-        this.collection = this.db.collection(this.collectionName);
+    static async insertOne(table: string, values: Record<string, any>) {
+        const keys = Object.keys(values);
+        const placeholders = keys.map((_, idx) => `$${idx + 1}`).join(', ');
+        const query = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders}) RETURNING *`;
+        const params = Object.values(values);
+        const result = await DB.pool.query(query, params);
+        return result.rows[0].id;
     }
 
-    async find(query?: object): Promise<WithId<Document>> {
-        return (await this.collection.find(query || {})).next();
+    static async find(table: string, conditions?: Record<string, any>): Promise<any> {
+        const where = conditions ?
+            `WHERE ${Object.keys(conditions).map((key, idx) => `${key} = $${idx + 1}`).join(' AND ')}` : '';
+        const query = `SELECT * FROM ${table} ${where} LIMIT 1`;
+        const params = conditions ? Object.values(conditions) : [];
+        const result = await DB.pool.query(query, params);
+        return result.rows;
     }
 
-    async findAll(query?: object): Promise<WithId<Document>[]> {
-        return await this.collection.find(query || {}).toArray();
+    static async findOne(table: string, conditions: Record<string, any>) {
+        const result = await this.find(table, conditions)
+        return result.length === 0 ? null : result[0];
     }
 
-    async findOne(query: object): Promise<WithId<Document>> {
-        return await this.collection.findOne(query);
+    static async findAndUpdateById(table: string, id: string, newObject: Record<string, any>): Promise<void> {
+        const keys = Object.keys(newObject);
+        const setClause = keys.map((key, idx) => `${key} = $${idx + 2}`).join(', ');
+        const query = `UPDATE ${table} SET ${setClause} WHERE id = $1`;
+        const params = [id, ...Object.values(newObject)];
+        await DB.pool.query(query, params);
     }
 
-    async findLastOne(query: object): Promise<WithId<Document>> {
-        return (await this.collection.find(query).sort({ _id: -1 }).limit(1)).next();
+    static async findAll(table: string, conditions?: Record<string, any>): Promise<any[]> {
+        const where = conditions ?
+            `WHERE ${Object.keys(conditions).map((key, idx) => `${key} = $${idx + 1}`).join(' AND ')}` : '';
+        const query = `SELECT * FROM ${table} ${where}`;
+        const params = conditions ? Object.values(conditions) : [];
+        const result = await DB.pool.query(query, params);
+        return result.rows;
     }
 
-    async insertOne(document: object): Promise<ObjectId> {
-        const result: InsertOneResult = await this.collection.insertOne(document);
-        return result.insertedId;
+    static async findLastOne(table: string, conditions?: Record<string, any>): Promise<any> {
+        const where = conditions ?
+            `WHERE ${Object.keys(conditions).map((key, idx) => `${key} = $${idx + 1}`).join(' AND ')}` : '';
+        const query = `SELECT * FROM ${table} ${where} ORDER BY id DESC LIMIT 1`;
+        const [result] = await DB.client.query(query, conditions ? Object.values(conditions) : []);
+        return result;
     }
 
-    async updateOneField(query: object, field: string, value): Promise<void> {
-        let new_data: WithId<Document> = await this.findOne(query)
-        new_data[field] = value
-        await this.collection.updateOne(query, { $set: new_data });
+    static async updateOneField(table: string, conditions: Record<string, any>, field: string, value: any): Promise<void> {
+        const where = Object.keys(conditions).map((key, idx) => `${key} = $${idx + 1}`).join(' AND ');
+        const params = [...Object.values(conditions), value];
+        const query = `UPDATE ${table} SET ${field} = $${params.length} WHERE ${where}`;
+        await DB.client.query(query, params);
     }
 
-    async deleteOne(query: object): Promise<void> {
-        await this.collection.deleteOne(query);
+    static async deleteOne(table: string, conditions: Record<string, any>): Promise<void> {
+        const where = Object.keys(conditions).map((key, idx) => `${key} = $${idx + 1}`).join(' AND ');
+        const query = `DELETE FROM ${table} WHERE ${where} LIMIT 1`;
+        await DB.client.query(query, Object.values(conditions));
     }
 
-    async deleteMany(query: object): Promise<void> {
-        await this.collection.deleteMany(query);
+    static async deleteMany(table: string, conditions: Record<string, any>): Promise<void> {
+        const where = Object.keys(conditions).map((key, idx) => `${key} = $${idx + 1}`).join(' AND ');
+        const query = `DELETE FROM ${table} WHERE ${where}`;
+        await DB.client.query(query, Object.values(conditions));
     }
 
-    async findAndDeleteById(id: ObjectId): Promise<void> {
-        await this.collection.findOneAndDelete({ "_id": id })
+    static async findAndDeleteById(table: string, id: string): Promise<void> {
+        const query = `DELETE FROM ${table} WHERE id = $1 LIMIT 1`;
+        await DB.client.query(query, [id]);
     }
 
-    async findAndUpdateById(id: ObjectId, newObject: object): Promise<void> {
-        await this.collection.updateOne({ _id: id }, { $set: newObject })
+    static async updateMany(table: string, filter: Record<string, any>, update: Record<string, any>): Promise<void> {
+        const filterClause = Object.keys(filter).map((key, idx) => `${key} = $${idx + 1}`).join(' AND ');
+        const updateClause = Object.keys(update).map((key, idx) => `${key} = $${idx + 1 + Object.keys(filter).length}`).join(', ');
+        const query = `UPDATE ${table} SET ${updateClause} WHERE ${filterClause}`;
+        const params = [...Object.values(filter), ...Object.values(update)];
+        await DB.client.query(query, params);
     }
 
-    async updateMany(filter: object, update: object): Promise<void> {
-        await this.collection.updateMany(filter, update);
+    static async aggregate(table: string, groupByField: string, aggregateField: string, aggregateFunc: string): Promise<any> {
+        const query = `SELECT ${aggregateFunc}(${aggregateField}) as result, ${groupByField} FROM ${table} GROUP BY ${groupByField}`;
+        const results = await DB.client.query(query);
+        return results[0];
     }
 
-    async aggregate(query: object[]): Promise<Document> {
-        let res: Document[] = await (await this.collection.aggregate(query)).toArray();
-        return res[0];
-    }
+    static async sql(query: string) {
+        const results = await DB.pool.query(query);
+        return results;
+    };
 }
-
-export const user_chats: DB = new DB('user_chats');
-export const chat_messages: DB = new DB('chat_messages');
-export const user_contacts: DB = new DB('user_contacts');

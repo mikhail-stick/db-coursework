@@ -1,5 +1,6 @@
-import {User, UserType} from '../classes/User'
-import {Profile, ProfileType} from "../classes/Profile";
+import { User, UserType } from '../classes/User'
+import { Profile, ProfileType } from "../classes/Profile";
+import { DB } from '../classes/Database';
 
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
@@ -16,9 +17,11 @@ router.get("/:userId", async (req, res): Promise<void> => {
             return;
         }
 
-        res.status(200).json(user);
+        console.log("/:userId ", user);
+
+        res.status(200).json({ ...user, _id: user.id });
     } catch (err) {
-        res.status(500).json({error: err.toString()});
+        res.status(500).json({ error: err.toString() });
     }
 });
 
@@ -29,22 +32,22 @@ router.get("/profile/:profileId", async (req, res): Promise<void> => {
         const profile: Profile = await Profile.findProfileById(req.params.profileId);
         res.status(200).json(profile);
     } catch (err) {
-        res.status(500).json({error: err.toString()});
+        res.status(500).json({ error: err.toString() });
     }
 });
 
 
 //CHANGE USER INFO
 router.put("/:userId", async (req, res): Promise<void> => {
-
-    if (req.body._id === req.params.userId) {
+    if (+req.body._id === +req.params.userId) {
 
         try {
-            const user = await User.findOneUser({username: req.body.username})
+            const user = await User.findOneUser({ username: req.body.username })
 
-            if (!user || user._id.toString() == req.body._id) {
+            if (!user || user.id.toString() == req.body._id) {
                 delete req.body._id;
                 await User.findUserByIdAndUpdate(req.params.userId, req.body);
+
                 res.status(200).json("Account has been updated");
             }
             else {
@@ -52,7 +55,7 @@ router.put("/:userId", async (req, res): Promise<void> => {
             }
 
         } catch (err) {
-            res.status(500).json({error: err.toString()});
+            res.status(500).json({ error: err.toString() });
         }
 
     } else {
@@ -63,7 +66,7 @@ router.put("/:userId", async (req, res): Promise<void> => {
 //CHANGE USER PROFILE INFO
 router.put("/profile/:profileId", async (req, res): Promise<void> => {
 
-    if (req.body._id === req.params.profileId) {
+    if (+req.body._id === +req.params.profileId) {
 
         try {
             delete req.body._id;
@@ -71,7 +74,7 @@ router.put("/profile/:profileId", async (req, res): Promise<void> => {
             res.status(200).json("Profile has been updated");
 
         } catch (err) {
-            res.status(500).json({error: err.toString()});
+            res.status(500).json({ error: err.toString() });
         }
 
     } else {
@@ -83,13 +86,13 @@ router.put("/profile/:profileId", async (req, res): Promise<void> => {
 //DELETE USER
 router.delete("/:userId", async (req, res): Promise<void> => {
 
-    if (req.body._id === req.params.userId) {
+    if (+req.body._id === +req.params.userId) {
 
         try {
             await User.deleteUserById(req.params.userId);
             res.status(200).json("Account has been deleted");
         } catch (err) {
-            res.status(500).json({error: err.toString()});
+            res.status(500).json({ error: err.toString() });
         }
 
     } else {
@@ -100,34 +103,36 @@ router.delete("/:userId", async (req, res): Promise<void> => {
 
 // GET ALL USER CHATS
 router.get("/chats/:userId", async (req, res): Promise<void> => {
-
     try {
         const data: any = await User.getAllUserChats(req.params.userId);
-        res.status(200).json(data.chats);
+        console.log("/chats/:userId", data);
+
+        res.status(200).json(data);
     } catch (err) {
-        res.status(500).json({error: err.toString()});
+        res.status(500).json({ error: err.toString() });
     }
 });
 
 // GET ALL USER CONTACTS
 router.get("/contacts/:userId", async (req, res): Promise<void> => {
-
     try {
         const contacts: any[] = await User.getAllUserContacts(req.params.userId);
+        console.log("/contacts/:userId", contacts);
+
         res.status(200).json(contacts);
     } catch (err) {
-        res.status(500).json({error: err.toString()});
+        res.status(500).json({ error: err.toString() });
     }
 });
 
 // ADD NEW CONTACT
-router.post("/contact", async (req, res): Promise<void> => {
-
+router.post("/contact", async (req, res): Promise<void> => {    
     try {
-        const contact: UserType = await User.findOneUser({phone_number: req.body.contact_phone_number})
+        const contact: UserType = await User.findOneUser({ phone_number: req.body.contact_phone_number })
+        console.log("/contacts", contact);
 
         if (contact) {
-            await User.addNewContact(req.body.user_id, contact._id);
+            await User.addNewContact(req.body.user_id, String(contact.id));
             res.status(200).json("Contact was added.");
         }
         else {
@@ -135,7 +140,7 @@ router.post("/contact", async (req, res): Promise<void> => {
         }
 
     } catch (err) {
-        res.status(500).json({error: err.toString()});
+        res.status(500).json({ error: err.toString() });
     }
 });
 

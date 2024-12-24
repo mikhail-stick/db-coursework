@@ -1,5 +1,5 @@
-import {Message, MessageType} from "../classes/Message";
-import {Router} from "express";
+import { Message, MessageType } from "../classes/Message";
+import { Router } from "express";
 
 const router: Router = require("express").Router();
 
@@ -12,16 +12,19 @@ router.post("/", async (req, res): Promise<void> => {
 
         res.status(200).json(new_message);
     } catch (err) {
-        res.status(500).json({error: err.toString()});
+        res.status(500).json({ error: err.toString() });
     }
 });
 
 
 // GET MESSAGE INFO
 router.get("/:messageId", async (req, res): Promise<void> => {
+    console.log("get/:messageId ");
 
     try {
         const message: MessageType = await Message.findMessageById(req.params.messageId);
+        console.log("get/:messageId ", message);
+
 
         if (!message) {
             res.status(404).json("Message doens`t exists");
@@ -36,55 +39,55 @@ router.get("/:messageId", async (req, res): Promise<void> => {
 
 
 // EDIT MESSAGE
-router.put("/:messageId", async (req, res): Promise<void> => {
+// router.put("/:messageId", async (req, res): Promise<void> => {
 
-    try {
-        const message: MessageType = await Message.findMessageById(req.params.messageId);
+//     try {
+//         const message: MessageType = await Message.findMessageById(req.params.messageId);
 
-        if (!message) {
-            res.status(404).json("Message doesn`t exists");
-            return;
-        }
+//         if (!message) {
+//             res.status(404).json("Message doesn`t exists");
+//             return;
+//         }
 
-        if (message.sender_id.toString() === req.body.user_id) {
-            await Message.setNewMessageText(req.params.messageId, req.body.text);
-            res.status(200).json("Message has been updated");
-        }
-        else {
-            res.status(403).json("You can update only your messages");
-        }
-    }
-    catch (err) {
-        res.status(500).json({error: err.toString()});
-    }
+//         if (message.sender_id.toString() === req.body.user_id) {
+//             await Message.setNewMessageText(req.params.messageId, req.body.text);
+//             res.status(200).json("Message has been updated");
+//         }
+//         else {
+//             res.status(403).json("You can update only your messages");
+//         }
+//     }
+//     catch (err) {
+//         res.status(500).json({error: err.toString()});
+//     }
 
-});
+// });
 
 
 // DELETE MESSAGE
-router.delete("/:messageId", async (req, res): Promise<void> => {
+// router.delete("/:messageId", async (req, res): Promise<void> => {
 
-    try {
-        const message: MessageType = await Message.findMessageById(req.params.messageId);
+//     try {
+//         const message: MessageType = await Message.findMessageById(req.params.messageId);
 
-        if (!message) {
-            res.status(404).json("Message doesn`t exists");
-            return;
-        }
+//         if (!message) {
+//             res.status(404).json("Message doesn`t exists");
+//             return;
+//         }
 
-        if (message.sender_id.toString() === req.body._id) {
-            await Message.deleteMessageById(req.params.messageId);
-            res.status(200).json("Message has been deleted");
-        }
-        else {
-            res.status(403).json("You can delete only your messages");
-        }
+//         if (message.sender_id.toString() === req.body._id) {
+//             await Message.deleteMessageById(req.params.messageId);
+//             res.status(200).json("Message has been deleted");
+//         }
+//         else {
+//             res.status(403).json("You can delete only your messages");
+//         }
 
-    } catch (err) {
-        res.status(500).json({error: err.toString()});
-    }
+//     } catch (err) {
+//         res.status(500).json({error: err.toString()});
+//     }
 
-});
+// });
 
 
 module.exports = router;

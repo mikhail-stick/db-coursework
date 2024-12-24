@@ -123,7 +123,7 @@ export function ProfileSettings(): JSX.Element {
                     />
                     {error && <p className="username-error-div">{error}</p>}
                     <p className="profile-settings-footer">
-                        You can choose a username on <b>SocialNetwork.</b><br/>
+                        You can choose a username on <b>Mintgram.</b><br/>
                         You can use a–z, 0–9 and underscores. <br/>Minimum length is 5 characters.
                     </p>
                 </div>

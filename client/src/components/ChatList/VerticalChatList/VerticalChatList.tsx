@@ -68,10 +68,10 @@ export function VerticalChatList(): JSX.Element {
                         {isClicked &&
                             <div className="new-chat-menu">
                                 <ul>
-                                    <li className='menu-item' onClick={handleGroupChatClick}>
+                                    {/* <li className='menu-item' onClick={handleGroupChatClick}>
                                         <GroupOutlined className='menu-item-icon'/>
                                         <p>New group</p>
-                                    </li>
+                                    </li> */}
                                     <li className='menu-item' onClick={handleMessageClick}>
                                         <PersonOutlined className='menu-item-icon'/>
                                         <p>New message</p>

@@ -1,7 +1,7 @@
 import {ObjectId} from "mongodb";
 
 import {Chat} from './Chat';
-import {user_chats} from "../Database";
+import {user_chats} from "../server/src/classes/Database";
 
 export class SavedMessages extends Chat {
 

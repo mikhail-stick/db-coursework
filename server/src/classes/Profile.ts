@@ -1,6 +1,4 @@
-import {Document, ObjectId, WithId} from "mongodb";
-
-import {DB} from './Database'
+import { DB } from './Database'
 
 export interface ProfileType {
     first_name: string;
@@ -11,10 +9,10 @@ export interface ProfileType {
 
 export class Profile {
 
-    static readonly profilesDb: DB = new DB('profiles');
+    static readonly table = "profiles";
 
-    static async addProfile(): Promise<ObjectId> {
-        return await this.profilesDb.insertOne(
+    static async addProfile() {
+        return await DB.insertOne(this.table,
             {
                 first_name: '',
                 last_name: '',
@@ -24,23 +22,23 @@ export class Profile {
         )
     }
 
-    static async findProfile(query: object): Promise<any> {
-        return await Profile.profilesDb.findOne(query);
-    }
+    // static async findProfile(query: object): Promise<any> {
+    //     return await Profile.profilesDb.findOne(query);
+    // }
 
-    static async findProfileById(user_id: string | ObjectId): Promise<WithId<Document>> {
-        return await Profile.profilesDb.findOne({_id: new ObjectId(user_id.toString())});
+    static async findProfileById(user_id: number) {
+        return await DB.findOne(this.table, { id: user_id });
     }
 
     static async findProfileByIdAndUpdate(id: string, newObject: object): Promise<void> {
-        await Profile.profilesDb.findAndUpdateById(new ObjectId(id), newObject);
+        await DB.findAndUpdateById(this.table, id, newObject);
     }
 
-    static async updateImage(id: string, image: string): Promise<void> {
-        await Profile.profilesDb.updateOneField({_id: new ObjectId(id.toString())}, 'image', image)
-    }
+    // static async updateImage(id: string, image: string): Promise<void> {
+    //     await Profile.profilesDb.updateOneField({_id: new ObjectId(id.toString())}, 'image', image)
+    // }
 
-    static async getImage(profile_id: string): Promise<any> {
-        return (await Profile.profilesDb.findOne({_id: new ObjectId(profile_id.toString())})).image;
-    }
+    // static async getImage(profile_id: string): Promise<any> {
+    //     return (await Profile.profilesDb.findOne({_id: new ObjectId(profile_id.toString())})).image;
+    // }
 }

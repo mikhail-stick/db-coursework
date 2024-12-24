@@ -1,12 +1,12 @@
-import {useQuery} from "react-query";
-import {ChatDTO, UserDTO} from "repositories";
-import {UserRepository, ContactDTO} from "repositories";
+import { useQuery } from "react-query";
+import { ChatDTO, UserDTO } from "repositories";
+import { UserRepository, ContactDTO } from "repositories";
 
 const userRepo: UserRepository = new UserRepository("http://localhost:3001");
 
 export const useUserInfo = (user_id: string) => {
 
-    const {data, refetch, isLoading, isError} = useQuery<any, Error>(['user_info', user_id], async () => {
+    const { data, refetch, isLoading, isError } = useQuery<any, Error>(['user_info', user_id], async () => {
         return await userRepo.getUserInfo(user_id);
     });
 
@@ -32,6 +32,8 @@ export const useUserInfo = (user_id: string) => {
 
 
 export const useUserChats = (user_id: string) => {
+    console.log("user_id: ", user_id);
+
     const {
         data,
         isLoading,
@@ -39,9 +41,12 @@ export const useUserChats = (user_id: string) => {
         error,
         refetch,
     } = useQuery<ChatDTO[], Error>(["user_chats", user_id], async (): Promise<any[]> => {
-            return await userRepo.getAllUserChats(user_id);
-        }
+        return await userRepo.getAllUserChats(user_id);
+    }
     );
+
+    console.log("chats: ", data ? data[0] : null);
+
 
     return {
         user_chats: data,
@@ -60,8 +65,8 @@ export const useUserContacts = (user_id: string) => {
         error,
         refetch,
     } = useQuery<ContactDTO[], Error>(["user_contacts", user_id], async (): Promise<ContactDTO[]> => {
-            return (await userRepo.getAllUserContacts(user_id)) as ContactDTO[];
-        }
+        return (await userRepo.getAllUserContacts(user_id)) as ContactDTO[];
+    }
     );
 
     return {
